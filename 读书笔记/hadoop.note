@@ -1,1 +1,77 @@
 Hadoop学习笔记。
+1、hadoop安装
+当开始着手实践 Hadoop 时，安装 Hadoop 往往会成为新手的一道门槛。尽管安装其实很简单，书上有写到，官方网站也有 Hadoop 安装配置教程，
+但由于对 Linux 环境不熟悉，书上跟官网上简略的安装步骤新手往往 Hold 不住。加上网上不少教程也甚是坑，导致新手折腾老几天愣是没装好，
+很是打击学习热情。
+本教程使用 Ubuntu 14.04 64位 作为系统环境（Ubuntu 12.04 也行，32位、64位均可），请自行安装系统（可参考使用VirtualBox安装Ubuntu）。
+
+如果用的是 CentOS/RedHat 系统，请查看相应的CentOS安装Hadoop教程_单机伪分布式配置。
+
+本教程基于原生 Hadoop 2，在 Hadoop 2.6.0 (stable) 版本下验证通过，可适合任何 Hadoop 2.x.y 版本，例如 Hadoop 
+
+如果你安装 Ubuntu 的时候不是用的 “hadoop” 用户，那么需要增加一个名为 hadoop 的用户。
+
+首先按 ctrl+alt+t 打开终端窗口，输入如下命令创建新用户 :
+
+sudo useradd -m hadoop -s /bin/bash
+
+这条命令创建了可以登陆的 hadoop 用户，并使用 /bin/bash 作为 shell。
+
+Ubuntu终端复制粘贴快捷键
+在Ubuntu终端窗口中，复制粘贴的快捷键需要加上 shift，即粘贴是 ctrl+shift+v。
+
+接着使用如下命令设置密码，可简单设置为 hadoop，按提示输入两次密码：
+sudo passwd hadoop
+
+可为 hadoop 用户增加管理员权限，方便部署，避免一些对新手来说比较棘手的权限问题：
+
+sudo adduser hadoop sudo
+Shell 命令
+最后注销当前用户（点击屏幕右上角的齿轮，选择注销），在登陆界面使用刚创建的 hadoop 用户进行登陆。
+更新apt
+用 hadoop 用户登录后，我们先更新一下 apt，后续我们使用 apt 安装软件，如果没更新可能有一些软件安装不了。按 ctrl+alt+t 打开终端窗口，执行如下命令：
+
+sudo apt-get update
+若出现如下 “Hash校验和不符” 的提示，可通过更改软件源来解决。若没有该问题，则不需要更改。
+
+Ubuntu更新软件源时遇到Hash校验和不符的问题
+后续需要更改一些配置文件，我比较喜欢用的是 vim（vi增强版，基本用法相同），建议安装一下（如果你实在还不会用 vi/vim 的，请将后面用到 vim 的地方改为 gedit，这样可以使用文本编辑器进行修改，并且每次文件更改完成后请关闭整个 gedit 程序，否则会占用终端）：
+
+sudo apt-get install vim
+
+
+安装SSH、配置SSH无密码登陆
+集群、单节点模式都需要用到 SSH 登陆（类似于远程登陆，你可以登录某台 Linux 主机，并且在上面运行命令），Ubuntu 默认已安装了 SSH client，此外还需要安装 SSH server：
+
+sudo apt-get install openssh-server
+Shell 命令
+安装后，可以使用如下命令登陆本机：
+
+ssh localhost
+
+此时会有如下提示(SSH首次登陆提示)，输入 yes 。然后按提示输入密码 hadoop，这样就登陆到本机了。
+
+但这样登陆是需要每次输入密码的，我们需要配置成SSH无密码登陆比较方便。
+
+首先退出刚才的 ssh，就回到了我们原先的终端窗口，然后利用 ssh-keygen 生成密钥，并将密钥加入到授权中：
+
+exit                           # 退出刚才的 ssh localhost
+cd ~/.ssh/                     # 若没有该目录，请先执行一次ssh localhost
+ssh-keygen -t rsa              # 会有提示，都按回车就可以
+cat ./id_rsa.pub >> ./authorized_keys  # 加入授权
+Shell 命令
+~的含义
+在 Linux 系统中，~ 代表的是用户的主文件夹，即 “/home/用户名” 这个目录，如你的用户名为 hadoop，则 ~ 就代表 “/home/hadoop/”。 此外，命令中的 # 后面的文字是注释。
+
+此时再用 ssh localhost 命令，无需输入密码就可以直接登陆了，如下图所示。
+安装Java环境
+Java环境可选择 Oracle 的 JDK，或是 OpenJDK，按http://wiki.apache.org/hadoop/HadoopJavaVersions中说的，新版本在 OpenJDK 1.7 下是没问题的。为图方便，这边直接通过命令安装 OpenJDK 7。
+
+sudo apt-get install openjdk-7-jre openjdk-7-jdk
+
+JRE和JDK的区别
+JRE（Java Runtime Environment，Java运行环境），是运行 Java 所需的环境。JDK（Java Development Kit，Java软件开发工具包）即包括 JRE，还包括开发 Java 程序所需的工具和类库。
+
+安装好 OpenJDK 后，需要找到相应的安装路径，这个路径是用于配置 JAVA_HOME 环境变量的。执行如下命令：
+
+dpkg -L openjdk-7-jdk | grep '/bin/javac'
