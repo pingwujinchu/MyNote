@@ -1,0 +1,15 @@
+java虚拟机的内存泄露问题。通过一个例子实现。
+java中如何实现链表打印。
+javaGC什么时候进行。如何设置GC。
+canWalkToEnd（leetcode  jumpII）
+sql语句中如何查找最大的记录，如何查找第二大的。
+
+
+
+java中的并行如何实现（多线程，java的锁）
+java中使用什么数据结构实现生产者消费者模型。（阻塞队列）
+hashmap的安全版：currentHashMap
+java中如何实现LRU。
+final,finally,finalize区别
+如果在try语句中使用return，finally会执行吗？
+使用两个栈实现队列。要求尽量少交换。
